@@ -13,19 +13,19 @@ namespace LeadSoft.Data.Mappings
 
             builder.Property(x => x.FirstName)
                 .IsRequired()
-                .HasColumnType("NVARCHAR(100)");
+                .HasColumnType("VARCHAR(100)");
 
             builder.Property(x => x.LastName)
                 .IsRequired()
-                .HasColumnType("NVARCHAR(100)");
+                .HasColumnType("VARCHAR(100)");
 
             builder.Property(x => x.DateOfBirth)
                 .IsRequired()
-                .HasColumnType("DATETIME");
+                .HasColumnType("DATE");
 
             builder.Property(x => x.Email)
                 .IsRequired()
-                .HasColumnType("NVARCHAR(100)");
+                .HasColumnType("VARCHAR(100)");
 
             builder.HasMany(x => x.Articles)
                 .WithOne(y => y.Author)

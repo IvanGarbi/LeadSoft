@@ -12,19 +12,19 @@ namespace LeadSoft.Data.Mappings
 
             builder.Property(x => x.Title)
                 .IsRequired()
-                .HasColumnType("NVARCHAR(100)");
+                .HasColumnType("VARCHAR(100)");
 
             builder.Property(x => x.Text)
                 .IsRequired()
-                .HasColumnType("NVARCHAR()");
+                .HasColumnType("TEXT");
 
             builder.Property(x => x.Description)
                 .IsRequired()
-                .HasColumnType("NVARCHAR(100)");
+                .HasColumnType("VARCHAR(100)");
 
             builder.Property(x => x.AuthorId)
                 .IsRequired()
-                .HasColumnType("UNIQUEIDENTIFIER");
+                .HasColumnType("UUID");
 
             builder.HasMany(x => x.Comments)
                 .WithOne(y => y.Article)

@@ -12,15 +12,15 @@ namespace LeadSoft.Data.Mappings
 
             builder.Property(x => x.Type)
                 .IsRequired()
-                .HasColumnType("NVARCHAR(100)");
+                .HasColumnType("VARCHAR(100)");
 
             builder.Property(x => x.Name)
                 .IsRequired()
-                .HasColumnType("NVARCHAR(100)");
+                .HasColumnType("VARCHAR(100)");
 
             builder.Property(x => x.ArticleId)
                 .IsRequired()
-                .HasColumnType("UNIQUEIDENTIFIER");
+                .HasColumnType("UUID");
 
             builder.ToTable("Categories");
         }

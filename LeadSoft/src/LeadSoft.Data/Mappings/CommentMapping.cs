@@ -12,11 +12,11 @@ namespace LeadSoft.Data.Mappings
 
             builder.Property(x => x.Text)
                 .IsRequired()
-                .HasColumnType("NVARCHAR()");
+                .HasColumnType("TEXT");
 
             builder.Property(x => x.ArticleId)
                 .IsRequired()
-                .HasColumnType("UNIQUEIDENTIFIER");
+                .HasColumnType("UUID");
 
             builder.ToTable("Comments");
         }
