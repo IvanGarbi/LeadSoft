@@ -13,5 +13,11 @@ public class AutoMapperConfig : Profile
 
         CreateMap<GetArticleViewModel, Article>().ReverseMap();
         CreateMap<PostArticleViewModel, Article>().ReverseMap();
+
+        CreateMap<GetCategoryViewModel, Category>().ReverseMap();
+        CreateMap<PostCategoryViewModel, Category>().ReverseMap();
+
+        CreateMap<GetCommentViewModel, Comment>().ReverseMap();
+        CreateMap<PostCommentViewModel, Comment>().ReverseMap();
     }
 }
