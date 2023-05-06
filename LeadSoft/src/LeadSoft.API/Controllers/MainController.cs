@@ -1,6 +1,10 @@
-﻿namespace LeadSoft.API.Controllers;
+﻿using Microsoft.AspNetCore.Mvc;
 
-public class MainController
+namespace LeadSoft.API.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class MainController : ControllerBase
 {
     
 }
