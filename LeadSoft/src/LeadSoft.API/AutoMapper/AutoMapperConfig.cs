@@ -10,5 +10,8 @@ public class AutoMapperConfig : Profile
     {
         CreateMap<GetAuthorViewModel, Author>().ReverseMap();
         CreateMap<PostAuthorViewModel, Author>().ReverseMap();
+
+        CreateMap<GetArticleViewModel, Article>().ReverseMap();
+        CreateMap<PostArticleViewModel, Article>().ReverseMap();
     }
 }
