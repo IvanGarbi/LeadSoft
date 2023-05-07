@@ -7,5 +7,4 @@ public interface ICategoryService
     Task Create(Category category);
     Task Update(Category category);
     Task Delete(Guid id);
-    Task ReadById(Guid id);
 }

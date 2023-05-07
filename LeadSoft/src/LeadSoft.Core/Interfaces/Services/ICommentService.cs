@@ -7,5 +7,4 @@ public interface ICommentService
     Task Create(Comment comment);
     Task Update(Comment comment);
     Task Delete(Guid id);
-    Task ReadById(Guid id);
 }

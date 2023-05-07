@@ -1,27 +1,89 @@
-﻿using LeadSoft.Core.Interfaces.Services;
+﻿using LeadSoft.Core.Interfaces.Notifications;
+using LeadSoft.Core.Interfaces.Repository;
+using LeadSoft.Core.Interfaces.Services;
 using LeadSoft.Core.Models;
+using LeadSoft.Core.Validations;
 
 namespace LeadSoft.Core.Services;
 
 public class CommentService : MainService, ICommentService
 {
-    public Task Create(Comment comment)
+    private readonly ICommentRepository _commentRepository;
+    private readonly IArticleRepository _articleRepository;
+
+    public CommentService(ICommentRepository commentRepository, INotify notify, IArticleRepository articleRepository) : base(notify)
     {
-        throw new NotImplementedException();
+        _commentRepository = commentRepository;
+        _articleRepository = articleRepository;
     }
 
-    public Task Update(Comment comment)
+    public async Task Create(Comment comment)
     {
-        throw new NotImplementedException();
+        var validation = Validate(new CommentValidation(), comment);
+
+        if (!validation)
+        {
+            return;
+        }
+
+        var dbArticle = await _articleRepository.GetById(comment.ArticleId);
+
+        if (dbArticle == null)
+        {
+            Notify("This article does not exists.");
+
+            return;
+        }
+
+        await _commentRepository.Create(comment);
     }
 
-    public Task Delete(Guid id)
+    public async Task Update(Comment comment)
     {
-        throw new NotImplementedException();
+        var validation = Validate(new CommentValidation(), comment);
+
+        if (!validation)
+        {
+            return;
+        }
+
+        var dbComment = await _commentRepository.GetById(comment.Id);
+
+        var dbArticle = await _articleRepository.GetById(comment.ArticleId);
+
+        if (dbComment == null)
+        {
+            Notify("This comment does not exists.");
+
+            return;
+        }
+
+        if (dbArticle == null)
+        {
+            Notify("This article does not exists.");
+
+            return;
+        }
+
+        await _commentRepository.Update(comment);
     }
 
-    public Task ReadById(Guid id)
+    public async Task Delete(Guid id)
     {
-        throw new NotImplementedException();
+        var dbComment = await _commentRepository.GetById(id);
+
+        if (dbComment == null)
+        {
+            Notify("This article does not exists.");
+
+            return;
+        }
+
+        await _commentRepository.Delete(id);
+    }
+
+    public async void Dispose()
+    {
+        _commentRepository?.Dispose();
     }
 }

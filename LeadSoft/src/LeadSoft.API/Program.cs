@@ -1,4 +1,9 @@
+using System.Text.Json.Serialization;
+using LeadSoft.Core.Interfaces.Notifications;
 using LeadSoft.Core.Interfaces.Repository;
+using LeadSoft.Core.Interfaces.Services;
+using LeadSoft.Core.Notifications;
+using LeadSoft.Core.Services;
 using LeadSoft.Data.Context;
 using LeadSoft.Data.Repository;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -39,11 +44,21 @@ builder.Configuration
 builder.Services.AddAutoMapper(typeof(Program));
 
 
+
+builder.Services.AddScoped<LeadSoftDbContext>();
+
 builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
 builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
+builder.Services.AddScoped<IAuthorService, AuthorService>();
+builder.Services.AddScoped<IArticleService, ArticleService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
+
+builder.Services.AddScoped<INotify, Notify>();
 
 var app = builder.Build();
 

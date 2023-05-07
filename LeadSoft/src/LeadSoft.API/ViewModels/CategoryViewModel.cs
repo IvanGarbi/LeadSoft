@@ -1,4 +1,5 @@
 ﻿using LeadSoft.Core.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace LeadSoft.API.ViewModels;
 
@@ -13,7 +14,12 @@ public class GetCategoryViewModel
 
 public class PostCategoryViewModel
 {
+    [Required(ErrorMessage = "The field {0} is required.")]
     public string Name { get; set; }
+
+    [Required(ErrorMessage = "The field {0} is required.")]
     public string Type { get; set; }
+
+    [Required(ErrorMessage = "The field {0} is required.")]
     public Guid ArticleId { get; set; }
 }

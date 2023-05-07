@@ -7,5 +7,4 @@ public interface IAuthorService
     Task Create(Author author);
     Task Update(Author author);
     Task Delete(Guid id);
-    Task ReadById(Guid id);
 }

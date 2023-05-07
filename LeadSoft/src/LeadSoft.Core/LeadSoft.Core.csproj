@@ -7,7 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Interfaces\Notifications\" />
     <Folder Include="Interfaces\Services\" />
+    <Folder Include="Notifications\" />
     <Folder Include="Services\" />
   </ItemGroup>
 

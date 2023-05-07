@@ -22,7 +22,7 @@ namespace LeadSoft.Data.Repository
             await SaveChanges();
         }
 
-        public async Task<IEnumerable<TE>> Get()
+        public virtual async Task<IEnumerable<TE>> Get()
         {
             return await _dbSet.AsNoTracking().ToListAsync();
         }

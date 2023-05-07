@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using LeadSoft.API.Controllers;
 using LeadSoft.API.ViewModels;
+using LeadSoft.Core.Interfaces.Notifications;
 using LeadSoft.Core.Interfaces.Repository;
+using LeadSoft.Core.Interfaces.Services;
 using LeadSoft.Core.Models;
-using LeadSoft.Core.Validations;
+using LeadSoft.Core.Notifications;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LeadSoft.API.V1.Controllers;
@@ -13,24 +15,37 @@ namespace LeadSoft.API.V1.Controllers;
 public class CommentController : MainController
 {
     private readonly ICommentRepository _commentRepository;
+    private readonly ICommentService _commentService;
     private readonly IMapper _mapper;
 
-    public CommentController(ICommentRepository commentRepository, IMapper mapper)
+    public CommentController(ICommentRepository commentRepository, IMapper mapper, ICommentService commentService, INotify notify) : base(notify)
     {
         _commentRepository = commentRepository;
         _mapper = mapper;
+        _commentService = commentService;
     }
 
     [HttpGet]
     public async Task<IEnumerable<GetCommentViewModel>> Get()
     {
-        return _mapper.Map<IEnumerable<GetCommentViewModel>>(await _commentRepository.Get());
+        var comments = await _commentRepository.Get();
+        var commentsViewModels = _mapper.Map<IEnumerable<GetCommentViewModel>>(comments);
+        return commentsViewModels;
     }
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<GetCommentViewModel>> Get(Guid id)
     {
-        return _mapper.Map<GetCommentViewModel>(await _commentRepository.GetById(id));
+        var comment = await _commentRepository.GetById(id);
+
+        if (comment == null)
+        {
+            _notify.AddNotification(new Notification("This comment does not exists."));
+            
+            return Respose();
+        }
+
+        return _mapper.Map<GetCommentViewModel>(comment);
     }
 
     [HttpPost]
@@ -38,22 +53,14 @@ public class CommentController : MainController
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest();
+            return BadRequest(new { ModelState });
         }
 
         var article = _mapper.Map<Comment>(commentViewModel);
 
-        var validations = new CommentValidation();
-        var result = validations.Validate(article);
+        await _commentService.Create(article);
 
-        if (!result.IsValid)
-        {
-            return BadRequest();
-        }
-
-        await _commentRepository.Create(article);
-
-        return Ok();
+        return Respose();
     }
 
     [HttpPut("{id:guid}")]
@@ -61,31 +68,16 @@ public class CommentController : MainController
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest();
-        }
-
-        var dbComment = await _commentRepository.GetById(id);
-
-        if (dbComment == null)
-        {
-            return BadRequest();
+            return BadRequest(new { ModelState });
         }
 
         var comment = _mapper.Map<Comment>(commentViewModel);
 
         comment.Id = id;
 
-        var validations = new CommentValidation();
-        var result = validations.Validate(comment);
+        await _commentService.Update(comment);
 
-        if (!result.IsValid)
-        {
-            return BadRequest();
-        }
-
-        await _commentRepository.Update(comment);
-
-        return Ok();
+        return Respose();
     }
 
     [HttpPatch("{id:guid}")]
@@ -93,31 +85,16 @@ public class CommentController : MainController
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest();
-        }
-
-        var dbComment = await _commentRepository.GetById(id);
-
-        if (dbComment == null)
-        {
-            return BadRequest();
+            return BadRequest(new { ModelState });
         }
 
         var comment = _mapper.Map<Comment>(commentViewModel);
 
         comment.Id = id;
 
-        var validations = new CommentValidation();
-        var result = validations.Validate(comment);
+        await _commentService.Update(comment);
 
-        if (!result.IsValid)
-        {
-            return BadRequest();
-        }
-
-        await _commentRepository.Update(comment);
-
-        return Ok();
+        return Respose();
     }
 
     [HttpDelete("{id:guid}")]
@@ -125,18 +102,11 @@ public class CommentController : MainController
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest();
+            return BadRequest(new { ModelState });
         }
 
-        var dbComment = await _commentRepository.GetById(id);
+        await _commentService.Delete(id);
 
-        if (dbComment == null)
-        {
-            return BadRequest();
-        }
-
-        await _commentRepository.Delete(id);
-
-        return Ok();
+        return Respose();
     }
 }

@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using LeadSoft.API.Controllers;
 using LeadSoft.API.ViewModels;
+using LeadSoft.Core.Interfaces.Notifications;
 using LeadSoft.Core.Interfaces.Repository;
+using LeadSoft.Core.Interfaces.Services;
 using LeadSoft.Core.Models;
-using LeadSoft.Core.Validations;
+using LeadSoft.Core.Notifications;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LeadSoft.API.V1.Controllers;
@@ -13,24 +15,36 @@ namespace LeadSoft.API.V1.Controllers;
 public class AuthorController : MainController
 {
     private readonly IAuthorRepository _authorRepository;
+    private readonly IAuthorService _authorService;
     private readonly IMapper _mapper;
 
-    public AuthorController(IAuthorRepository authorRepository, IMapper mapper)
+    public AuthorController(IAuthorRepository authorRepository, IMapper mapper, IAuthorService authorService, INotify notify) : base(notify)
     {
         _authorRepository = authorRepository;
         _mapper = mapper;
+        _authorService = authorService;
     }
 
     [HttpGet]
     public async Task<IEnumerable<GetAuthorViewModel>> Get()
     {
-        return _mapper.Map<IEnumerable<GetAuthorViewModel>>(await _authorRepository.Get());
+        var authors = await _authorRepository.Get();
+        var authorViewModels = _mapper.Map<IEnumerable<GetAuthorViewModel>>(authors);
+        return authorViewModels;
     }
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<GetAuthorViewModel>> Get(Guid id)
     {
-        return _mapper.Map<GetAuthorViewModel>(await _authorRepository.GetById(id));
+        var author = await _authorRepository.GetById(id);
+
+        if (author == null)
+        {
+            _notify.AddNotification(new Notification("This author does not exists."));
+            return Respose();
+        }
+
+        return _mapper.Map<GetAuthorViewModel>(author);
     }
 
     [HttpPost]
@@ -38,22 +52,14 @@ public class AuthorController : MainController
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest();
+            return BadRequest(new { ModelState });
         }
 
         var author = _mapper.Map<Author>(authorViewModel);
 
-        var validations = new AuthorValidation();
-        var result = validations.Validate(author);
+        await _authorService.Create(author);
 
-        if (!result.IsValid)
-        {
-            return BadRequest();
-        }
-
-        await _authorRepository.Create(author);
-
-        return Ok();
+        return Respose();
     }
 
     [HttpPut("{id:guid}")]
@@ -61,7 +67,7 @@ public class AuthorController : MainController
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest();
+            return BadRequest(new { ModelState });
         }
 
         var dbAuthor = await _authorRepository.GetById(id);
@@ -75,17 +81,9 @@ public class AuthorController : MainController
 
         author.Id = id;
 
-        var validations = new AuthorValidation();
-        var result = validations.Validate(author);
+        await _authorService.Update(author);
 
-        if (!result.IsValid)
-        {
-            return BadRequest();
-        }
-
-        await _authorRepository.Update(author);
-
-        return Ok();
+        return Respose();
     }
 
     [HttpPatch("{id:guid}")]
@@ -93,7 +91,7 @@ public class AuthorController : MainController
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest();
+            return BadRequest(new { ModelState });
         }
 
         var dbAuthor = await _authorRepository.GetById(id);
@@ -107,17 +105,9 @@ public class AuthorController : MainController
 
         author.Id = id;
 
-        var validations = new AuthorValidation();
-        var result = validations.Validate(author);
+        await _authorService.Update(author);
 
-        if (!result.IsValid)
-        {
-            return BadRequest();
-        }
-
-        await _authorRepository.Update(author);
-
-        return Ok();
+        return Respose();
     }
 
     [HttpDelete("{id:guid}")]
@@ -125,18 +115,11 @@ public class AuthorController : MainController
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest();
+            return BadRequest(new { ModelState });
         }
 
-        var dbAuthor = await _authorRepository.GetById(id);
+        await _authorService.Delete(id);
 
-        if (dbAuthor == null)
-        {
-            return BadRequest();
-        }
-
-        await _authorRepository.Delete(id);
-
-        return Ok();
+        return Respose();
     }
 }

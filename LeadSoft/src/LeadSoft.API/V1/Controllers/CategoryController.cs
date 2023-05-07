@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using LeadSoft.API.Controllers;
 using LeadSoft.API.ViewModels;
+using LeadSoft.Core.Interfaces.Notifications;
 using LeadSoft.Core.Interfaces.Repository;
+using LeadSoft.Core.Interfaces.Services;
 using LeadSoft.Core.Models;
-using LeadSoft.Core.Validations;
+using LeadSoft.Core.Notifications;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LeadSoft.API.V1.Controllers;
@@ -14,24 +15,37 @@ namespace LeadSoft.API.V1.Controllers;
 public class CategoryController : MainController
 {
     private readonly ICategoryRepository _categoryRepository;
+    private readonly ICategoryService _categoryService;
     private readonly IMapper _mapper;
 
-    public CategoryController(ICategoryRepository categoryRepository, IMapper mapper)
+    public CategoryController(ICategoryRepository categoryRepository, IMapper mapper, ICategoryService categoryService, INotify notify) : base(notify)
     {
         _categoryRepository = categoryRepository;
         _mapper = mapper;
+        _categoryService = categoryService;
     }
 
     [HttpGet]
     public async Task<IEnumerable<GetCategoryViewModel>> Get()
     {
-        return _mapper.Map<IEnumerable<GetCategoryViewModel>>(await _categoryRepository.Get());
+        var categories = await _categoryRepository.Get();
+        var categoriesViewModels = _mapper.Map<IEnumerable<GetCategoryViewModel>>(categories);
+        return categoriesViewModels;
     }
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<GetCategoryViewModel>> Get(Guid id)
     {
-        return _mapper.Map<GetCategoryViewModel>(await _categoryRepository.GetById(id));
+        var category = await _categoryRepository.GetById(id);
+
+        if (category == null)
+        {
+            _notify.AddNotification(new Notification("This category does not exists."));
+
+            return Respose();
+        }
+
+        return _mapper.Map<GetCategoryViewModel>(category);
     }
 
     [HttpPost]
@@ -39,22 +53,14 @@ public class CategoryController : MainController
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest();
+            return BadRequest(new { ModelState });
         }
 
         var article = _mapper.Map<Category>(categoryViewModel);
 
-        var validations = new CategoryValidation();
-        var result = validations.Validate(article);
+        await _categoryService.Create(article);
 
-        if (!result.IsValid)
-        {
-            return BadRequest();
-        }
-
-        await _categoryRepository.Create(article);
-
-        return Ok();
+        return Respose();
     }
 
     [HttpPut("{id:guid}")]
@@ -62,7 +68,7 @@ public class CategoryController : MainController
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest();
+            return BadRequest(new { ModelState });
         }
 
         var dbCategory = await _categoryRepository.GetById(id);
@@ -76,17 +82,9 @@ public class CategoryController : MainController
 
         category.Id = id;
 
-        var validations = new CategoryValidation();
-        var result = validations.Validate(category);
+        await _categoryService.Update(category);
 
-        if (!result.IsValid)
-        {
-            return BadRequest();
-        }
-
-        await _categoryRepository.Update(category);
-
-        return Ok();
+        return Respose();
     }
 
     [HttpPatch("{id:guid}")]
@@ -94,7 +92,7 @@ public class CategoryController : MainController
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest();
+            return BadRequest(new { ModelState });
         }
 
         var dbCategory = await _categoryRepository.GetById(id);
@@ -108,17 +106,9 @@ public class CategoryController : MainController
 
         category.Id = id;
 
-        var validations = new CategoryValidation();
-        var result = validations.Validate(category);
+        await _categoryService.Update(category);
 
-        if (!result.IsValid)
-        {
-            return BadRequest();
-        }
-
-        await _categoryRepository.Update(category);
-
-        return Ok();
+        return Respose();
     }
 
     [HttpDelete("{id:guid}")]
@@ -126,18 +116,11 @@ public class CategoryController : MainController
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest();
+            return BadRequest(new { ModelState });
         }
 
-        var dbCategory = await _categoryRepository.GetById(id);
+        await _categoryService.Delete(id);
 
-        if (dbCategory == null)
-        {
-            return BadRequest();
-        }
-
-        await _categoryRepository.Delete(id);
-
-        return Ok();
+        return Respose();
     }
 }

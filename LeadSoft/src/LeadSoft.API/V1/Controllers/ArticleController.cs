@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using LeadSoft.API.Controllers;
 using LeadSoft.API.ViewModels;
+using LeadSoft.Core.Interfaces.Notifications;
 using LeadSoft.Core.Interfaces.Repository;
+using LeadSoft.Core.Interfaces.Services;
 using LeadSoft.Core.Models;
-using LeadSoft.Core.Validations;
+using LeadSoft.Core.Notifications;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LeadSoft.API.V1.Controllers;
@@ -13,24 +15,37 @@ namespace LeadSoft.API.V1.Controllers;
 public class ArticleController : MainController
 {
     private readonly IArticleRepository _articleRepository;
+    private readonly IArticleService _articleService;
     private readonly IMapper _mapper;
 
-    public ArticleController(IArticleRepository articleRepository, IMapper mapper)
+    public ArticleController(IArticleRepository articleRepository, IMapper mapper, IArticleService articleService, INotify notify) : base(notify)
     {
         _articleRepository = articleRepository;
         _mapper = mapper;
+        _articleService = articleService;
     }
 
     [HttpGet]
     public async Task<IEnumerable<GetArticleViewModel>> Get()
     {
-        return _mapper.Map<IEnumerable<GetArticleViewModel>>(await _articleRepository.Get());
+        var articles = await _articleRepository.Get();
+        var articlesViewModels = _mapper.Map<IEnumerable<GetArticleViewModel>>(articles);
+        return articlesViewModels;
     }
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<GetArticleViewModel>> Get(Guid id)
     {
-        return _mapper.Map<GetArticleViewModel>(await _articleRepository.GetById(id));
+        var article = await _articleRepository.GetById(id);
+
+        if (article == null)
+        {
+            _notify.AddNotification(new Notification("This article does not exists."));
+
+            return Respose();
+        }
+
+        return _mapper.Map<GetArticleViewModel>(article);
     }
 
     [HttpPost]
@@ -38,22 +53,14 @@ public class ArticleController : MainController
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest();
+            return BadRequest(new { ModelState });
         }
 
         var article = _mapper.Map<Article>(articleViewModel);
 
-        var validations = new ArticleValidation();
-        var result = validations.Validate(article);
+        await _articleService.Create(article);
 
-        if (!result.IsValid)
-        {
-            return BadRequest();
-        }
-
-        await _articleRepository.Create(article);
-
-        return Ok();
+        return Respose();
     }
 
     [HttpPut("{id:guid}")]
@@ -61,31 +68,16 @@ public class ArticleController : MainController
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest();
-        }
-
-        var dbArticle = await _articleRepository.GetById(id);
-
-        if (dbArticle == null)
-        {
-            return BadRequest();
+            return BadRequest(new { ModelState });
         }
 
         var article = _mapper.Map<Article>(articleViewModel);
 
         article.Id = id;
 
-        var validations = new ArticleValidation();
-        var result = validations.Validate(article);
+        await _articleService.Update(article);
 
-        if (!result.IsValid)
-        {
-            return BadRequest();
-        }
-
-        await _articleRepository.Update(article);
-
-        return Ok();
+        return Respose();
     }
 
     [HttpPatch("{id:guid}")]
@@ -93,7 +85,7 @@ public class ArticleController : MainController
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest();
+            return BadRequest(new { ModelState });
         }
 
         var dbArticle = await _articleRepository.GetById(id);
@@ -107,17 +99,9 @@ public class ArticleController : MainController
 
         article.Id = id;
 
-        var validations = new ArticleValidation();
-        var result = validations.Validate(article);
+        await _articleService.Update(article);
 
-        if (!result.IsValid)
-        {
-            return BadRequest();
-        }
-
-        await _articleRepository.Update(article);
-
-        return Ok();
+        return Respose();
     }
 
     [HttpDelete("{id:guid}")]
@@ -125,18 +109,11 @@ public class ArticleController : MainController
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest();
+            return BadRequest(new { ModelState });
         }
 
-        var dbArticle = await _articleRepository.GetById(id);
+        await _articleService.Delete(id);
 
-        if (dbArticle == null)
-        {
-            return BadRequest();
-        }
-
-        await _articleRepository.Delete(id);
-
-        return Ok();
+        return Respose();
     }
 }

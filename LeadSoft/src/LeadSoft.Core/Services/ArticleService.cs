@@ -1,27 +1,90 @@
-﻿using LeadSoft.Core.Interfaces.Services;
+﻿using LeadSoft.Core.Interfaces.Notifications;
+using LeadSoft.Core.Interfaces.Repository;
+using LeadSoft.Core.Interfaces.Services;
 using LeadSoft.Core.Models;
+using LeadSoft.Core.Validations;
 
 namespace LeadSoft.Core.Services;
 
 public class ArticleService : MainService, IArticleService
 {
-    public Task Create(Article article)
+    private readonly IArticleRepository _articleRepository;
+    private readonly IAuthorRepository _authorRepository;
+    
+    public ArticleService(IArticleRepository articleRepository, INotify notify, IAuthorRepository authorRepository) : base(notify)
     {
-        throw new NotImplementedException();
+        _articleRepository = articleRepository;
+        _authorRepository = authorRepository;
     }
 
-    public Task Update(Article article)
+    public async Task Create(Article article)
     {
-        throw new NotImplementedException();
+        var validation = Validate(new ArticleValidation(), article);
+
+        if (!validation)
+        {
+            return;
+        }
+
+        var dbAuthor = await _authorRepository.GetById(article.AuthorId);
+
+        if (dbAuthor == null)
+        {
+            Notify("This author does not exists.");
+
+            return;
+        }
+
+        await _articleRepository.Create(article);
     }
 
-    public Task Delete(Guid id)
+    public async Task Update(Article article)
     {
-        throw new NotImplementedException();
+        var validation = Validate(new ArticleValidation(), article);
+
+        if (!validation)
+        {
+            return;
+        }
+
+        var dbArticle = await _articleRepository.GetById(article.Id);
+
+        var dbAuthor = await _authorRepository.GetById(article.AuthorId);
+
+        if (dbArticle == null)
+        {
+            Notify("This article does not exists.");
+
+            return;
+        }
+
+        if (dbAuthor == null)
+        {
+            Notify("This author does not exists.");
+
+            return;
+        }
+
+        await _articleRepository.Update(article);
     }
 
-    public Task ReadById(Guid id)
+    public async Task Delete(Guid id)
     {
-        throw new NotImplementedException();
+        var dbArticle = await _articleRepository.GetById(id);
+
+        if (dbArticle == null)
+        {
+            Notify("This article does not exists.");
+
+            return;
+        }
+
+        await _articleRepository.Delete(id);
+    }
+
+
+    public async void Dispose()
+    {
+        _articleRepository?.Dispose();
     }
 }
