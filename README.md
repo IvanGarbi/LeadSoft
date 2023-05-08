@@ -17,7 +17,6 @@ Testes de Unidade e Integração com xUnit.NET
 <br>
 * Rodar a aplicação.
 <br>
-Testes de Unidade com xUnit.NET
 
 # Tecnologias
 * .NET 6
