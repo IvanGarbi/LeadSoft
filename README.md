@@ -7,13 +7,13 @@ CRUD de Authors, Articles, Comments e Categories.
 <br>
 # Inicialização
 <br>
-Ter instalado o PostgreSql na máquina local.
+* Ter instalado o PostgreSql na máquina local.
 <br>
-Atualizar o appsettings da conection string com o usuário e senha do PostgreSql.
+* Atualizar o appsettings da conection string com o usuário e senha do PostgreSql.
 <br>
-Rodar updata-database no Package Manager Console.
+* Rodar updata-database no Package Manager Console.
 <br>
-Rodar a aplicação.
+* Rodar a aplicação.
 <br>
 Testes de Unidade com xUnit.NET
 
