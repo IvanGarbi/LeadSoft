@@ -2,7 +2,7 @@
 
 namespace LeadSoft.Core.Interfaces.Services;
 
-public interface ICommentService
+public interface ICommentService : IDisposable
 {
     Task Create(Comment comment);
     Task Update(Comment comment);

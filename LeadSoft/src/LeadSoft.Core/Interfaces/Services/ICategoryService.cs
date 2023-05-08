@@ -2,7 +2,7 @@
 
 namespace LeadSoft.Core.Interfaces.Services;
 
-public interface ICategoryService
+public interface ICategoryService : IDisposable
 {
     Task Create(Category category);
     Task Update(Category category);

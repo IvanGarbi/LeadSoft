@@ -2,7 +2,7 @@
 
 namespace LeadSoft.Core.Interfaces.Services;
 
-public interface IArticleService
+public interface IArticleService : IDisposable
 {
     Task Create(Article article);
     Task Update(Article article);
