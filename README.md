@@ -15,7 +15,6 @@ CRUD de Authors, Articles, Comments e Categories.
 <br>
 * Rodar a aplicação.
 <br>
-<br>
 # Testes de Unidade com xUnit.NET
 
 # Tecnologias
