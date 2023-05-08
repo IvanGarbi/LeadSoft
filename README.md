@@ -3,7 +3,9 @@
 Teste realizado para a Lead Soft.
 
 # API REST - Documentação Swagger
-CRUD de Authors, Articles, Comments e Categories. 
+CRUD de Authors, Articles, Comments e Categories.
+<br>
+Testes de Unidade e Integração com xUnit.NET 
 <br>
 # Inicialização
 <br>
@@ -15,7 +17,7 @@ CRUD de Authors, Articles, Comments e Categories.
 <br>
 * Rodar a aplicação.
 <br>
-# Testes de Unidade com xUnit.NET
+Testes de Unidade com xUnit.NET
 
 # Tecnologias
 * .NET 6
