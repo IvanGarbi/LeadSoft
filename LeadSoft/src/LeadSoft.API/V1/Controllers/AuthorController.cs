@@ -36,7 +36,7 @@ public class AuthorController : MainController
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<GetAuthorViewModel>> Get(Guid id)
     {
-        var author = await _authorRepository.GetById(id);
+        var author = await _authorRepository.GetByIdWithRelations(id);
 
         if (author == null)
         {

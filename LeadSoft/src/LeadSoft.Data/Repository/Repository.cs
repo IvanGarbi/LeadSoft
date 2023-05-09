@@ -32,6 +32,11 @@ namespace LeadSoft.Data.Repository
             return await _dbSet.AsNoTracking().Where(x => x.Id == id).FirstOrDefaultAsync();
         }
 
+        public virtual async Task<TE> GetByIdWithRelations(Guid id)
+        {
+            return await _dbSet.AsNoTracking().Where(x => x.Id == id).FirstOrDefaultAsync();
+        }
+
         public async Task Update(TE entity)
         {
             _context.Update(entity);

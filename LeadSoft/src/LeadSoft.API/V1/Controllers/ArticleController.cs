@@ -36,7 +36,7 @@ public class ArticleController : MainController
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<GetArticleViewModel>> Get(Guid id)
     {
-        var article = await _articleRepository.GetById(id);
+        var article = await _articleRepository.GetByIdWithRelations(id);
 
         if (article == null)
         {

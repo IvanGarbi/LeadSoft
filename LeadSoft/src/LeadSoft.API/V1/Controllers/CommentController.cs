@@ -36,7 +36,7 @@ public class CommentController : MainController
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<GetCommentViewModel>> Get(Guid id)
     {
-        var comment = await _commentRepository.GetById(id);
+        var comment = await _commentRepository.GetByIdWithRelations(id);
 
         if (comment == null)
         {

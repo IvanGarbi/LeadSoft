@@ -8,6 +8,7 @@ namespace LeadSoft.Core.Interfaces.Repository
         Task Update(TE entity);
         Task Delete(Guid id);
         Task<TE> GetById(Guid id);
+        Task<TE> GetByIdWithRelations(Guid id);
         Task<IEnumerable<TE>> Get();
         Task<int> SaveChanges();
     }

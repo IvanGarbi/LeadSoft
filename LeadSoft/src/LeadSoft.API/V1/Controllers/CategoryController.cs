@@ -36,7 +36,7 @@ public class CategoryController : MainController
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<GetCategoryViewModel>> Get(Guid id)
     {
-        var category = await _categoryRepository.GetById(id);
+        var category = await _categoryRepository.GetByIdWithRelations(id);
 
         if (category == null)
         {

@@ -19,5 +19,15 @@ namespace LeadSoft.Data.Repository
                                .Include(c => c.Category)
                                .ToListAsync();
         }
+
+        public virtual async Task<Article> GetByIdWithRelations(Guid id)
+        {
+            return await _dbSet.AsNoTracking()
+                               .Where(x => x.Id == id)
+                               .Include(i => i.Author)
+                               .Include(a => a.Comments)
+                               .Include(z => z.Category)
+                               .FirstOrDefaultAsync();
+        }
     }
 }

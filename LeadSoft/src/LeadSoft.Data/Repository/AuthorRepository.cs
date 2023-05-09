@@ -17,5 +17,13 @@ namespace LeadSoft.Data.Repository
                                .Include(x => x.Articles)
                                .ToListAsync();
         }
+
+        public virtual async Task<Author> GetByIdWithRelations(Guid id)
+        {
+            return await _dbSet.AsNoTracking()
+                               .Where(x => x.Id == id)
+                               .Include(i => i.Articles)
+                               .FirstOrDefaultAsync();
+        }
     }
 }
